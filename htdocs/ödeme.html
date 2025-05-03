@@ -1,0 +1,131 @@
+<?php
+// Veritabanı bağlantısı
+$host = "localhost"; // Veritabanı sunucu adresi (localhost)
+$dbname = "naz"; // Veritabanı adı
+$username = "root"; // MySQL kullanıcı adı
+$password = ""; // MySQL şifresi
+
+// Veritabanı bağlantısı
+$conn = new mysqli($host, $username, $password, $dbname);
+
+// Bağlantı kontrolü
+if ($conn->connect_error) {
+    die("Bağlantı hatası: " . $conn->connect_error);
+}
+
+// Form verisini işle
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Formdan gelen verileri al
+    $isim = $_POST['isim'];
+    $kart_numarasi = $_POST['kart_numarasi'];
+    $son_kullanma = $_POST['son_kullanma'];
+    $cvv = $_POST['cvv'];
+
+    // Veritabanına ekleme işlemi
+    $stmt = $conn->prepare("INSERT INTO odemeler (isim, kart_numarasi, son_kullanma_tarihi, cvv) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $isim, $kart_numarasi, $son_kullanma, $cvv);
+
+    if ($stmt->execute()) {
+        echo "<p>Ödeme bilgileri başarıyla kaydedildi (test amaçlı)!</p>";
+    } else {
+        echo "<p>Hata: " . $stmt->error . "</p>";
+    }
+
+    $stmt->close();
+}
+
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme Sayfası</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://images.pexels.com/photos/1671643/pexels-photo-1671643.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .payment-form-container {
+            background-color: rgba(255, 255, 255, 0.8); /* Beyaz, yarı şeffaf */
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .payment-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .payment-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .payment-form button:hover {
+            background-color: #218838;
+        }
+
+        .logos {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .logos img {
+            width: 40px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="payment-form-container">
+        <h2>Ödeme Formu</h2>
+        <form class="payment-form" method="post">
+            <input type="text" name="isim" placeholder="İsim Soyisim" required><br>
+            <input type="text" name="kart_numarasi" placeholder="Kart Numarası" required><br>
+            <input type="text" name="son_kullanma" placeholder="Son Kullanma (MM/YY)" required><br>
+            <input type="text" name="cvv" placeholder="CVV" required><br>
+            <button type="submit">Ödeme Yap</button>
+        </form>
+
+        <div class="logos">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/27/MasterCard_Logo.png" alt="MasterCard">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Maestro_logo_2016.svg" alt="Maestro">
+        </div>
+    </div>
+
+</body>
+</html>
